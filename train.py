@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# at least python3.6
+
 import os
 import math
 import time
@@ -343,6 +345,7 @@ def main():
     set_seed(args)
     logger = initialize_logger(args)
     logger.info(f'Arguments:\n{pformat(vars(args))}')
+    # 调用vars(args)的format函数，得到字符串？
 
     field, save_dict = None, None
     if args.load is not None:
@@ -358,6 +361,7 @@ def main():
         mp.run(run_args)
     else:
         logger.info(f'Processing')
+        # f string of python 3.6
         run(args, run_args, world_size=args.world_size)
 
 
