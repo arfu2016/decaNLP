@@ -8,6 +8,7 @@
 import logging
 import logging.handlers
 import os
+from pprint import pformat
 import torch
 import arguments
 from util import (elapsed_time, get_splits, batch_fn, set_seed)
@@ -40,6 +41,7 @@ def main():
     logger = initialize_logger(args)
     logger.info(f'Arguments:\n{pformat(vars(args))}')
     # 调用vars(args)的format函数，得到字符串？
+    # pformat是一种format函数，从pprint中引入的
 
     field, save_dict = None, None
     # tuple unpacking
@@ -49,10 +51,12 @@ def main():
         field = save_dict['field']
         # field is the value in the 'field' key of the data
 
-        # logger.info(field)
+        logger.info(field)
 
     # field, train_sets, val_sets = prepare_data(args, field, logger)
 
 
 if __name__ == '__main__':
+# python decaNLP/data_load.py --train_tasks squad --gpus 0 --train_batch_tokens 5000 --val_batch_size 128
+
     main()
