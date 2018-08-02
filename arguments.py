@@ -11,7 +11,11 @@ from dateutil import tz
 
 def get_commit():
     directory = os.path.dirname(sys.argv[0])
-    return subprocess.Popen("cd {} && git log | head -n 1".format(directory), shell=True, stdout=subprocess.PIPE).stdout.read().split()[1].decode()
+    # 这里用到的是相对路径，如果sys.argv[0]改变了，就会出问题
+    # 所以python后的第一个参数必须是decaNLP/data_load.py，或者decaNLP/train.py
+    return subprocess.Popen(
+        "cd {} && git log | head -n 1".format(directory),
+        shell=True, stdout=subprocess.PIPE).stdout.read().split()[1].decode()
 
 
 def save_args(args):
@@ -25,27 +29,56 @@ def parse():
     Returns the arguments from the command line.
     """
     parser = ArgumentParser()
-    parser.add_argument('--data', default='/decaNLP/.data/', type=str, help='where to load data from.')
-    parser.add_argument('--save', default='/decaNLP/results', type=str, help='where to save results.')
-    parser.add_argument('--embeddings', default='/decaNLP/.embeddings', type=str, help='where to save embeddings.')
+    parser.add_argument('--data', default='/decaNLP/.data/',
+                        type=str, help='where to load data from.')
+    parser.add_argument('--save', default='/decaNLP/results',
+                        type=str, help='where to save results.')
+    parser.add_argument('--embeddings', default='/decaNLP/.embeddings',
+                        type=str, help='where to save embeddings.')
 
-    parser.add_argument('--train_tasks', nargs='+', type=str, help='tasks to use for training', required=True)
-    parser.add_argument('--train_iterations', nargs='+', type=int, help='number of iterations to focus on each task')
-    parser.add_argument('--train_batch_tokens', nargs='+', default=[10000], type=int, help='Number of tokens to use for dynamic batching, corresponging to tasks in train tasks')
-    parser.add_argument('--jump_start', default=0, type=int, help='number of iterations to give jump started tasks')
-    parser.add_argument('--n_jump_start', default=0, type=int, help='how many tasks to jump start (presented in order)')    
-    parser.add_argument('--num_print', default=15, type=int, help='how many validation examples with greedy output to print to std out')
+    parser.add_argument('--train_tasks', nargs='+', type=str,
+                        help='tasks to use for training', required=True)
+    parser.add_argument('--train_iterations', nargs='+', type=int,
+                        help='number of iterations to focus on each task')
+    parser.add_argument('--train_batch_tokens', nargs='+', default=[10000],
+                        type=int,
+                        help='Number of tokens to use for dynamic batching, '
+                             'corresponging to tasks in train tasks')
+    parser.add_argument('--jump_start', default=0, type=int,
+                        help='number of iterations to give jump started tasks')
+    parser.add_argument(
+        '--n_jump_start', default=0, type=int,
+        help='how many tasks to jump start (presented in order)')
+    parser.add_argument(
+        '--num_print', default=15, type=int,
+        help='how many validation examples with greedy output'
+             ' to print to std out')
 
-    parser.add_argument('--log_every', default=int(1e2), type=int, help='how often to log results in # of iterations')
-    parser.add_argument('--save_every', default=int(1e3), type=int, help='how often to save a checkpoint in # of iterations')
+    parser.add_argument('--log_every', default=int(1e2), type=int,
+                        help='how often to log results in # of iterations')
+    parser.add_argument(
+        '--save_every', default=int(1e3), type=int,
+        help='how often to save a checkpoint in # of iterations')
 
-    parser.add_argument('--val_tasks', nargs='+', type=str, help='tasks to collect evaluation metrics for')
-    parser.add_argument('--val_every', default=int(1e3), type=int, help='how often to run validation in # of iterations')
-    parser.add_argument('--val_no_filter', action='store_false', dest='val_filter', help='whether to allow filtering on the validation sets')
-    parser.add_argument('--val_batch_size', nargs='+', default=[256], type=int, help='Batch size for validation corresponding to tasks in val tasks')
+    parser.add_argument(
+        '--val_tasks', nargs='+', type=str,
+        help='tasks to collect evaluation metrics for')
+    parser.add_argument(
+        '--val_every', default=int(1e3), type=int,
+        help='how often to run validation in # of iterations')
+    parser.add_argument(
+        '--val_no_filter', action='store_false', dest='val_filter',
+        help='whether to allow filtering on the validation sets')
+    parser.add_argument(
+        '--val_batch_size', nargs='+', default=[256], type=int,
+        help='Batch size for validation corresponding to tasks in val tasks')
 
-    parser.add_argument('--vocab_tasks', nargs='+', type=str, help='tasks to use in the construction of the vocabulary')
-    parser.add_argument('--max_output_length', default=100, type=int, help='maximum output length for generation')
+    parser.add_argument(
+        '--vocab_tasks', nargs='+', type=str,
+        help='tasks to use in the construction of the vocabulary')
+    parser.add_argument(
+        '--max_output_length', default=100, type=int,
+        help='maximum output length for generation')
     parser.add_argument('--max_effective_vocab', default=int(1e6), type=int, help='max effective vocabulary size for pretrained embeddings')
     parser.add_argument('--max_generative_vocab', default=50000, type=int, help='max vocabulary for the generative softmax')
     parser.add_argument('--max_train_context_length', default=400, type=int, help='maximum length of the contexts during training')

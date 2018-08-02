@@ -66,7 +66,6 @@ def preprocess_examples(args, tasks, splits, field, logger=None, train=True):
                 logger.info('Answer: ' + ' '.join(ex.answer))
 
 
-
 def set_seed(args, rank=None):
     if rank is not None:
         device = args.gpus[rank]
@@ -76,7 +75,7 @@ def set_seed(args, rank=None):
         else:
             device = args.gpus
     os.environ['CUDA_VISIBLE_DEVICES'] = f'{device}'
-    print(f'device: {device}')
+    print(f'From set_seed in util.py, gpu device: {device}')
 
     np.random.seed(args.seed)
     random.seed(args.seed)
