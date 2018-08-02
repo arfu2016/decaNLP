@@ -27,7 +27,8 @@ import models
 from validate import validate
 from multiprocess import Multiprocess, DistributedDataParallel
 from metrics import compute_metrics
-from util import elapsed_time, get_splits, batch_fn, set_seed, preprocess_examples, get_trainable_params, count_params
+from util import (elapsed_time, get_splits, batch_fn, set_seed,
+                  preprocess_examples, get_trainable_params, count_params)
 
 
 def initialize_logger(args, rank='main'):
@@ -55,18 +56,27 @@ def prepare_data(args, field, logger):
 
     if field is None: 
         logger.info(f'Constructing field')
-        FIELD = torchtext.data.ReversibleField(batch_first=True, init_token='<init>', eos_token='<eos>', lower=args.lower, include_lengths=True)
+        FIELD = torchtext.data.ReversibleField(
+            batch_first=True, init_token='<init>', eos_token='<eos>',
+            lower=args.lower, include_lengths=True)
     else:
         FIELD = field
 
     train_sets, val_sets, vocab_sets = [], [], []
+    # train sets, validation sets
     for task in args.train_tasks:
         logger.info(f'Loading {task}')
-        kwargs = {'test': None}
-        kwargs['subsample'] = args.subsample
-        kwargs['validation'] = None
+        # kwargs = {'test': None}
+        # kwargs['subsample'] = args.subsample
+        # kwargs['validation'] = None
+        kwargs = {'test': None,
+                  'subsample': args.subsample,
+                  'validation': None
+                  }
         logger.info(f'Adding {task} to training datasets')
         split = get_splits(args, task, FIELD, **kwargs)[0]
+        # split = torchtext.datasets.generic.SQuAD.splits(fields=FIELD,
+        # root=args.data, **kwargs)
         logger.info(f'{task} has {len(split)} training examples')
         train_sets.append(split)
         if args.vocab_tasks is not None and task in args.vocab_tasks:
@@ -348,15 +358,18 @@ def main():
     # 调用vars(args)的format函数，得到字符串？
 
     field, save_dict = None, None
+    # tuple unpacking
     if args.load is not None:
         logger.info(f'Loading field from {os.path.join(args.save, args.load)}')
         save_dict = torch.load(os.path.join(args.save, args.load))
         field = save_dict['field']
+        # field is the value in the 'field' key of the data
     field, train_sets, val_sets = prepare_data(args, field, logger)
 
     run_args = (field, train_sets, val_sets, save_dict)
     if len(args.gpus) > 1:
         logger.info(f'Multiprocessing')
+        # 多gpu
         mp = Multiprocess(run, args)
         mp.run(run_args)
     else:
