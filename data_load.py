@@ -34,7 +34,7 @@ def initialize_logger(args, rank='data_load.py'):
     return logger
 
 
-def define_logger(rank='main'):
+def define_logger(rank='unknown'):
     logger = logging.getLogger(f'process_{rank}')
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(name)s - %(lineno)d - %(message)s')
@@ -75,6 +75,7 @@ def prepare_data(args, field, logger):
         # split = torchtext.datasets.generic.SQuAD.splits(fields=FIELD,
         # root=args.data, **kwargs)
         logger.info(f'{task} has {len(split)} training examples')
+        logger.debug(split)
         train_sets.append(split)
 
         if args.vocab_tasks is not None and task in args.vocab_tasks:
