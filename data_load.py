@@ -63,7 +63,7 @@ def prepare_data(args, field, logger):
         # split = torchtext.datasets.generic.SQuAD.splits(fields=FIELD,
         # root=args.data, **kwargs)
         logger.info(f'{task} has {len(split)} training examples')
-        logger.debug(split)
+        logger.debug(type(split))
         train_sets.append(split)
 
         if args.vocab_tasks is not None and task in args.vocab_tasks:
