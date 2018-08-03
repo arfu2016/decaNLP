@@ -201,29 +201,37 @@ class SQuAD(CQA, data.Dataset):
     dirname = ''
 
     def __init__(self, path, field, subsample=None, **kwargs):
+        # path是放数据的文件名
         fields = [(x, field) for x in self.fields]
         cache_name = os.path.join(
             os.path.dirname(path), '.cache',
             os.path.basename(path), str(subsample))
+        # 缓存文件的地址？
 
         examples, all_answers = [], []
         if os.path.exists(cache_name):
             examples, all_answers = torch.load(cache_name)
+            # 缓存是用torch.save()存的，所以用torch.load()来加载
         else:
             with open(os.path.expanduser(path)) as f:
                 squad = json.load(f)['data']
+                # 加载json文件
                 for document in squad:
                     title = document['title']
                     paragraphs = document['paragraphs']
+                    # 文档可能有多个段落
                     for paragraph in paragraphs:
                         context = paragraph['context']
                         qas = paragraph['qas']
+                        # 每个段落都可能涉及到一组问题
                         for qa in qas:
                             question = ' '.join(qa['question'].split())
                             answer = qa['answers'][0]['text']
                             squad_id = len(all_answers)
-                            all_answers.append([a['text'] for a in qa['answers']])
-                            #print('original: ', answer)
+                            # at first, all_answers = []
+                            all_answers.append(
+                                [a['text'] for a in qa['answers']])
+                            # print('original: ', answer)
                             answer_start = qa['answers'][0]['answer_start']
                             answer_end = answer_start + len(answer) 
                             context_before_answer = context[:answer_start]
@@ -231,12 +239,19 @@ class SQuAD(CQA, data.Dataset):
                             BEGIN = 'beginanswer ' 
                             END = ' endanswer'
 
-                            tagged_context = context_before_answer + BEGIN + answer + END + context_after_answer
-                            context_question = get_context_question(context, question) 
-                            ex = data.Example.fromlist([tagged_context, question, answer, CONTEXT_SPECIAL, QUESTION_SPECIAL, context_question], fields)
+                            tagged_context = context_before_answer + BEGIN + \
+                                answer + END + context_after_answer
+                            context_question = get_context_question(
+                                context, question)
+                            # 把context和question连成一个字符串
+                            ex = data.Example.fromlist(
+                                [tagged_context, question, answer,
+                                 CONTEXT_SPECIAL, QUESTION_SPECIAL,
+                                 context_question], fields)
+                            # 第一个参数是data，返回值是Example类的实例
 
                             tokenized_answer = ex.answer
-                            #print('tokenized: ', tokenized_answer)
+                            # print('tokenized: ', tokenized_answer)
                             for xi, x in enumerate(ex.context):
                                 if BEGIN in x: 
                                     answer_start = xi + 1
@@ -246,10 +261,17 @@ class SQuAD(CQA, data.Dataset):
                                     ex.context[xi] = x.replace(END, '')
                             new_context = []
                             original_answer_start = answer_start
+                            # 记录答案的开始位置
                             original_answer_end = answer_end
-                            indexed_with_spaces = ex.context[answer_start:answer_end]
-                            if len(indexed_with_spaces) != len(tokenized_answer):
-                                import pdb; pdb.set_trace()
+                            # 记录答案的结束位置
+                            indexed_with_spaces = ex.context[
+                                                  answer_start: answer_end]
+                            # 答案的字符串内容
+                            if len(indexed_with_spaces) != len(
+                                    tokenized_answer):
+                                import pdb
+                                # pdb is the python debugger
+                                pdb.set_trace()
 
                             # remove spaces
                             for xi, x in enumerate(ex.context):
@@ -261,50 +283,66 @@ class SQuAD(CQA, data.Dataset):
                                 else:
                                     new_context.append(x)
                             ex.context = new_context
-                            ex.answer = [x for x in ex.answer if len(x.strip()) > 0] 
-                            if len(ex.context[answer_start:answer_end]) != len(ex.answer):
-                                import pdb; pdb.set_trace()
-                            ex.context_spans = list(range(answer_start, answer_end)) 
-                            indexed_answer = ex.context[ex.context_spans[0]:ex.context_spans[-1]+1]
+
+                            ex.answer = [x for x in ex.answer
+                                         if len(x.strip()) > 0]
+                            if len(ex.context[answer_start:answer_end]) != len(
+                                    ex.answer):
+                                import pdb
+                                pdb.set_trace()
+
+                            ex.context_spans = list(
+                                range(answer_start, answer_end))
+                            indexed_answer = ex.context[
+                                ex.context_spans[0]: ex.context_spans[-1]+1]
                             if len(indexed_answer) != len(ex.answer):
-                                import pdb; pdb.set_trace()
+                                import pdb
+                                pdb.set_trace()
                             if field.eos_token is not None:
                                 ex.context_spans += [len(ex.context)]
-                            for context_idx, answer_word in zip(ex.context_spans, ex.answer):
+                            for context_idx, answer_word in zip(
+                                    ex.context_spans, ex.answer):
                                 if context_idx == len(ex.context):
                                     continue
                                 if ex.context[context_idx] != answer_word:
-                                    import pdb; pdb.set_trace()
+                                    import pdb
+                                    pdb.set_trace()
                             ex.answer_start = ex.context_spans[0]
                             ex.answer_end = ex.context_spans[-1]
                             ex.squad_id = squad_id
                             examples.append(ex)
-                            if subsample is not None and len(examples) > subsample:
+                            # 把Example类的实例放入examples列表中
+                            if subsample is not None and len(
+                                    examples) > subsample:
                                 break
-                        if subsample is not None and len(examples) > subsample:
+                        if subsample is not None and len(
+                                examples) > subsample:
                             break
                     if subsample is not None and len(examples) > subsample:
                         break
 
             os.makedirs(os.path.dirname(cache_name), exist_ok=True)
             torch.save((examples, all_answers), cache_name)
+            # 把Example类的实例组成的列表保存到缓存中
 
-
-        FIELD = data.Field(batch_first=True, use_vocab=False, sequential=False, 
-            lower=False, numerical=True, eos_token=field.eos_token, init_token=field.init_token)
+        FIELD = data.Field(
+            batch_first=True, use_vocab=False, sequential=False,
+            lower=False, numerical=True, eos_token=field.eos_token,
+            init_token=field.init_token)
         fields.append(('context_spans', FIELD))
         fields.append(('answer_start', FIELD))
         fields.append(('answer_end', FIELD))
         fields.append(('squad_id', FIELD))
 
         super(SQuAD, self).__init__(examples, fields, **kwargs)
+        # 此处的多继承依次执行data.Dataset和CQA的__init__，因为CQA也继承了data.Dataset
         self.all_answers = all_answers
-
 
     @classmethod
     def splits(cls, fields, root='.data', train='train', validation='dev',
                test=None, **kwargs):
         """Create dataset objects for splits of the SQuAD dataset.
+        在classmethod当中调用__init__()函数产生类实例
         Arguments:
             root: directory containing SQuAD data
             field: field for handling all columns
@@ -319,11 +357,12 @@ class SQuAD(CQA, data.Dataset):
 
         extension = 'v1.1.json'
         train = '-'.join([train, extension]) if train is not None else None
-        validation = '-'.join([validation, extension]) if validation is not None else None
+        validation = '-'.join(
+            [validation, extension]) if validation is not None else None
 
         train_data = None if train is None else cls(
             os.path.join(path, train), fields, **kwargs)
-        # 调用__init__()函数
+        # 调用__init__()函数，此时传过去的path已经带了文件名
         validation_data = None if validation is None else cls(
             os.path.join(path, validation), fields, **kwargs)
         return tuple(d for d in (train_data, validation_data)
