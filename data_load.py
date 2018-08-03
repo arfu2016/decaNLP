@@ -34,18 +34,6 @@ def initialize_logger(args, rank='data_load.py'):
     return logger
 
 
-def define_logger(rank='unknown'):
-    logger = logging.getLogger(f'process_{rank}')
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(name)s - %(lineno)d - %(message)s')
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    handler.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
-    logger.propagate = False
-    return logger
-
-
 def prepare_data(args, field, logger):
 
     if field is None:

@@ -6,6 +6,9 @@ import torch
 import random
 import numpy as np
 
+from logger_setup import define_logger
+logger = define_logger('util.py')
+
 
 def get_context_question(ex, context, question, field):
     return ex.context_special + ex.context + ex.question_special + ex.question
@@ -123,6 +126,7 @@ def get_splits(args, task, FIELD, **kwargs):
     if 'squad' in task:
         split = torchtext.datasets.generic.SQuAD.splits(
             fields=FIELD, root=args.data, **kwargs)
+        logger.debug(type(split))
     if task == 'wikisql':
         split = torchtext.datasets.generic.WikiSQL.splits(
             fields=FIELD, root=args.data, **kwargs)
