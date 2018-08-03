@@ -75,7 +75,7 @@ def set_seed(args, rank=None):
         else:
             device = args.gpus
     os.environ['CUDA_VISIBLE_DEVICES'] = f'{device}'
-    print(f'From set_seed in util.py, gpu device: {device}')
+    print(f'Print from set_seed in util.py, gpu device: {device}')
 
     np.random.seed(args.seed)
     random.seed(args.seed)

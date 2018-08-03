@@ -12,10 +12,10 @@ from pprint import pformat
 import torch
 from text import torchtext
 import arguments
-from util import (elapsed_time, get_splits, batch_fn, set_seed)
+from util import (get_splits, set_seed)
 
 
-def initialize_logger(args, rank='main'):
+def initialize_logger(args, rank='data_load.py'):
     # set up file logger
     logger = logging.getLogger(f'process_{rank}')
     logger.setLevel(logging.DEBUG)
@@ -26,6 +26,18 @@ def initialize_logger(args, rank='main'):
     formatter = logging.Formatter('%(name)s - %(lineno)d - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    handler.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+    logger.propagate = False
+    return logger
+
+
+def define_logger(rank='main'):
+    logger = logging.getLogger(f'process_{rank}')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(name)s - %(lineno)d - %(message)s')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     handler.setLevel(logging.DEBUG)
