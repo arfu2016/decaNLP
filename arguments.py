@@ -79,38 +79,91 @@ def parse():
     parser.add_argument(
         '--max_output_length', default=100, type=int,
         help='maximum output length for generation')
-    parser.add_argument('--max_effective_vocab', default=int(1e6), type=int, help='max effective vocabulary size for pretrained embeddings')
-    parser.add_argument('--max_generative_vocab', default=50000, type=int, help='max vocabulary for the generative softmax')
-    parser.add_argument('--max_train_context_length', default=400, type=int, help='maximum length of the contexts during training')
-    parser.add_argument('--max_val_context_length', default=400, type=int, help='maximum length of the contexts during validation')
-    parser.add_argument('--max_answer_length', default=50, type=int, help='maximum length of answers during training and validation')
-    parser.add_argument('--subsample', default=20000000, type=int, help='subsample the datasets')
-    parser.add_argument('--preserve_case', action='store_false', dest='lower', help='whether to preserve casing for all text')
+    parser.add_argument(
+        '--max_effective_vocab', default=int(1e6), type=int,
+        help='max effective vocabulary size for pretrained embeddings')
+    parser.add_argument(
+        '--max_generative_vocab', default=50000, type=int,
+        help='max vocabulary for the generative softmax')
+    parser.add_argument(
+        '--max_train_context_length', default=400, type=int,
+        help='maximum length of the contexts during training')
+    parser.add_argument(
+        '--max_val_context_length', default=400, type=int,
+        help='maximum length of the contexts during validation')
+    parser.add_argument(
+        '--max_answer_length', default=50, type=int,
+        help='maximum length of answers during training and validation')
+    parser.add_argument(
+        '--subsample', default=20000000, type=int,
+        help='subsample the datasets')
+    parser.add_argument(
+        '--preserve_case', action='store_false', dest='lower',
+        help='whether to preserve casing for all text')
 
-    parser.add_argument('--model', type=str, default='MultitaskQuestionAnsweringNetwork', help='which model to import')
-    parser.add_argument('--dimension', default=200, type=int, help='output dimensions for all layers')
-    parser.add_argument('--rnn_layers', default=1, type=int, help='number of layers for RNN modules')
-    parser.add_argument('--transformer_layers', default=2, type=int, help='number of layers for transformer modules')
-    parser.add_argument('--transformer_hidden', default=150, type=int, help='hidden size of the transformer modules')
-    parser.add_argument('--transformer_heads', default=3, type=int, help='number of heads for transformer modules')
-    parser.add_argument('--dropout_ratio', default=0.2, type=float, help='dropout for the model')
-    parser.add_argument('--no_transformer_lr', action='store_false', dest='transformer_lr', help='turns off the transformer learning rate strategy') 
+    parser.add_argument(
+        '--model', type=str, default='MultitaskQuestionAnsweringNetwork',
+        help='which model to import')
+    parser.add_argument(
+        '--dimension', default=200, type=int,
+        help='output dimensions for all layers')
+    parser.add_argument(
+        '--rnn_layers', default=1, type=int,
+        help='number of layers for RNN modules')
+    parser.add_argument(
+        '--transformer_layers', default=2, type=int,
+        help='number of layers for transformer modules')
+    parser.add_argument(
+        '--transformer_hidden', default=150, type=int,
+        help='hidden size of the transformer modules')
+    parser.add_argument(
+        '--transformer_heads', default=3, type=int,
+        help='number of heads for transformer modules')
+    parser.add_argument(
+        '--dropout_ratio', default=0.2, type=float,
+        help='dropout for the model')
+    parser.add_argument(
+        '--no_transformer_lr', action='store_false', dest='transformer_lr',
+        help='turns off the transformer learning rate strategy')
 
-    parser.add_argument('--warmup', default=800, type=int, help='warmup for learning rate')
-    parser.add_argument('--grad_clip', default=1.0, type=float, help='gradient clipping')
-    parser.add_argument('--beta0', default=0.9, type=float, help='alternative momentum for Adam (only when not using transformer_lr)')
+    parser.add_argument(
+        '--warmup', default=800, type=int, help='warmup for learning rate')
+    parser.add_argument(
+        '--grad_clip', default=1.0, type=float, help='gradient clipping')
+    parser.add_argument(
+        '--beta0', default=0.9, type=float,
+        help='alternative momentum for Adam '
+             '(only when not using transformer_lr)')
 
-    parser.add_argument('--load', default=None, type=str, help='path to checkpoint to load model from inside args.save')
-    parser.add_argument('--resume', action='store_true', help='whether to resume training with past optimizers')
+    parser.add_argument(
+        '--load', default=None, type=str,
+        help='path to checkpoint to load model from inside args.save')
+    parser.add_argument(
+        '--resume', action='store_true',
+        help='whether to resume training with past optimizers')
 
-    parser.add_argument('--seed', default=123, type=int, help='Random seed.')
-    parser.add_argument('--gpus', default=[0], nargs='+', type=int, help='a list of gpus that can be used for training (multi-gpu currently WIP)')
-    parser.add_argument('--backend', default='gloo', type=str, help='backend for distributed training')
+    parser.add_argument(
+        '--seed', default=123, type=int, help='Random seed.')
+    parser.add_argument(
+        '--gpus', default=[0], nargs='+', type=int,
+        help='a list of gpus that can be used for training '
+             '(multi-gpu currently WIP)')
+    parser.add_argument(
+        '--backend', default='gloo', type=str,
+        help='backend for distributed training')
 
-    parser.add_argument('--no_commit', action='store_false', dest='commit', help='do not track the git commit associated with this training run') 
-    parser.add_argument('--exist_ok', action='store_true', help='Ok if the save directory already exists, i.e. overwrite is ok') 
-    parser.add_argument('--token_testing', action='store_true', help='if true, sorts all iterators') 
-    parser.add_argument('--reverse', action='store_true', help='if token_testing and true, sorts all iterators in reverse') 
+    parser.add_argument(
+        '--no_commit', action='store_false', dest='commit',
+        help='do not track the git commit associated with this training run')
+    parser.add_argument(
+        '--exist_ok', action='store_true',
+        help='Ok if the save directory already exists, i.e. overwrite is ok')
+    parser.add_argument(
+        '--token_testing', action='store_true',
+        help='if true, sorts all iterators')
+    parser.add_argument(
+        '--reverse', action='store_true',
+        help='if token_testing and true, sorts all iterators in reverse')
 
     args = parser.parse_args()
     if args.model is None:

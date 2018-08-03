@@ -60,11 +60,14 @@ def prepare_data(args, field, logger):
                   }
         logger.info(f'Adding {task} to training datasets')
         split = get_splits(args, task, FIELD, **kwargs)[0]
+        # 取了tuple的第一个元素，只保留train_data，不要validation data
         # split = torchtext.datasets.generic.SQuAD.splits(fields=FIELD,
         # root=args.data, **kwargs)
         logger.info(f'{task} has {len(split)} training examples')
         logger.debug(type(split))
         train_sets.append(split)
+
+        logger.debug(args.vocab_tasks)
 
         if args.vocab_tasks is not None and task in args.vocab_tasks:
             vocab_sets.extend(split)

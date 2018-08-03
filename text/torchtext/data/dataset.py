@@ -111,6 +111,8 @@ class Dataset(torch.utils.data.Dataset):
         path = os.path.join(root, cls.name)
         check = path if check is None else check
         if not os.path.isdir(check):
+            # 只是检查文件夹是否存在，如果有的话，就默认文件已经下好了
+            # 这样的检查其实是有漏洞的，如果文件夹存在但文件没下好，就放弃下载了
             for url in cls.urls:
                 if isinstance(url, tuple):
                     url, filename = url
@@ -122,6 +124,7 @@ class Dataset(torch.utils.data.Dataset):
                         os.makedirs(os.path.dirname(zpath))
                     print('downloading {}'.format(filename))
                     download_from_url(url, zpath)
+                    # 下载文件的函数
                 ext = os.path.splitext(filename)[-1]
                 if ext == '.zip':
                     with zipfile.ZipFile(zpath, 'r') as zfile:

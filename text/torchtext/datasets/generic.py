@@ -194,14 +194,17 @@ class SQuAD(CQA, data.Dataset):
     def sort_key(ex):
         return data.interleave_keys(len(ex.context), len(ex.answer))
 
-    urls = ['https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json',
-            'https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json']
+    urls = [
+        'https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json',
+        'https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json']
     name = 'squad'
     dirname = ''
 
     def __init__(self, path, field, subsample=None, **kwargs):
         fields = [(x, field) for x in self.fields]
-        cache_name = os.path.join(os.path.dirname(path), '.cache', os.path.basename(path), str(subsample))
+        cache_name = os.path.join(
+            os.path.dirname(path), '.cache',
+            os.path.basename(path), str(subsample))
 
         examples, all_answers = [], []
         if os.path.exists(cache_name):
@@ -299,8 +302,8 @@ class SQuAD(CQA, data.Dataset):
 
 
     @classmethod
-    def splits(cls, fields, root='.data',
-               train='train', validation='dev', test=None, **kwargs):
+    def splits(cls, fields, root='.data', train='train', validation='dev',
+               test=None, **kwargs):
         """Create dataset objects for splits of the SQuAD dataset.
         Arguments:
             root: directory containing SQuAD data
@@ -312,6 +315,7 @@ class SQuAD(CQA, data.Dataset):
         """
         assert test is None
         path = cls.download(root)
+        # path中存放有train和validate的json文件
 
         extension = 'v1.1.json'
         train = '-'.join([train, extension]) if train is not None else None
@@ -319,6 +323,7 @@ class SQuAD(CQA, data.Dataset):
 
         train_data = None if train is None else cls(
             os.path.join(path, train), fields, **kwargs)
+        # 调用__init__()函数
         validation_data = None if validation is None else cls(
             os.path.join(path, validation), fields, **kwargs)
         return tuple(d for d in (train_data, validation_data)
