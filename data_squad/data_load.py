@@ -9,7 +9,7 @@ import logging
 import logging.handlers
 from pprint import pformat
 
-import arguments
+from data_squad import arguments
 from text import torchtext
 from util import get_splits
 
@@ -61,9 +61,6 @@ def prepare_data(args, field, logger):
 
         logger.debug(args.vocab_tasks)
 
-        if args.vocab_tasks is not None and task in args.vocab_tasks:
-            vocab_sets.extend(split)
-
     logger.debug(train_sets)
 
     # return FIELD, train_sets, val_sets
@@ -89,6 +86,6 @@ def main():
 
 if __name__ == '__main__':
 
-    # python data_load.py --train_tasks squad --gpus 0
+    # python data_squad/data_load.py --train_tasks squad --gpus 0
 
     main()
