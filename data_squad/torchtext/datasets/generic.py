@@ -1,7 +1,7 @@
 import os
 import re
 import zipfile
-import revtok
+# import revtok
 import torch
 import io
 import csv
@@ -9,7 +9,7 @@ import json
 import glob
 import hashlib
 import unicodedata
-
+from logger_setup import define_logger
 
 from . import sst
 from . import imdb
@@ -17,6 +17,8 @@ from . import snli
 from . import translation
 
 from .. import data
+
+logger = define_logger('data_squad.trochtext.datasets.generic')
 
 
 CONTEXT_SPECIAL = 'Context:'
@@ -202,6 +204,7 @@ class SQuAD(CQA, data.Dataset):
 
     def __init__(self, path, field, subsample=None, **kwargs):
         # path是放数据的文件名
+        logger.debug(path)
         fields = [(x, field) for x in self.fields]
         cache_name = os.path.join(
             os.path.dirname(path), '.cache',
