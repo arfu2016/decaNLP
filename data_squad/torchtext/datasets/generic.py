@@ -9,6 +9,7 @@ import json
 import glob
 import hashlib
 import unicodedata
+import time
 from logger_setup import define_logger
 
 from . import sst
@@ -220,10 +221,12 @@ class SQuAD(CQA, data.Dataset):
             # 缓存是用torch.save()存的，所以用torch.load()来加载
         else:
             with open(os.path.expanduser(path)) as f:
+                logger.debug('Begin to load data from json file...')
+                start_time = time.perf_counter()
                 squad = json.load(f)['data']
                 # 加载json文件
                 for document in squad:
-                    title = document['title']
+                    # title = document['title']
                     paragraphs = document['paragraphs']
                     # 文档可能有多个段落
                     for paragraph in paragraphs:
@@ -326,6 +329,10 @@ class SQuAD(CQA, data.Dataset):
                             break
                     if subsample is not None and len(examples) > subsample:
                         break
+
+            logger.debug(time.perf_counter()-start_time)
+            logger.debug(examples)
+            logger.debug(all_answers)
 
             os.makedirs(os.path.dirname(cache_name), exist_ok=True)
             torch.save((examples, all_answers), cache_name)
