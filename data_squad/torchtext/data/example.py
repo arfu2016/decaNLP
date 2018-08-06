@@ -8,6 +8,7 @@ class Example(object):
     """Defines a single training or test example.
 
     Stores each column of the example as an attribute.
+    本质上是把字典或者record转变成了类实例
     """
 
     @classmethod
@@ -54,12 +55,15 @@ class Example(object):
     @classmethod
     def fromlist(cls, data, fields):
         ex = cls()
+        # 生成类的实例
         for (name, field), val in zip(fields, data):
             if field is not None:
                 if isinstance(val, six.string_types):
                     val = val.rstrip('\n')
                 setattr(ex, name, field.preprocess(val))
+                # 要根据所在field来调用preprocess函数, 属性的名字也是由fields来决定的
         return ex
+    # Example就是个很简单的类，并没有复杂的继承
 
     @classmethod
     def fromtree(cls, data, fields, subtrees=False):

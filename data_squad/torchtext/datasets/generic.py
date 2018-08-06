@@ -260,6 +260,7 @@ class SQuAD(CQA, data.Dataset):
                                  CONTEXT_SPECIAL, QUESTION_SPECIAL,
                                  context_question], fields)
                             # 第一个参数是data，返回值是Example类的实例
+                            # 从list构建Example类的实例
 
                             tokenized_answer = ex.answer
                             # print('tokenized: ', tokenized_answer)
