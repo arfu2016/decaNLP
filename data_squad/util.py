@@ -7,7 +7,7 @@ import random
 import numpy as np
 
 from logger_setup import define_logger
-logger = define_logger('util.py')
+logger = define_logger('data_squad.util')
 
 
 def get_context_question(ex, context, question, field):
