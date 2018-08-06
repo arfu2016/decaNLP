@@ -86,6 +86,7 @@ def main():
 
 if __name__ == '__main__':
 
-    # python data_squad/data_load.py --train_tasks squad --gpus 0
+    # python decaNLP/data_load.py --train_tasks squad --gpus 0
+    # python run_data_load.py --train_tasks squad --gpus 0
 
     main()

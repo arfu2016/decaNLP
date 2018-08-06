@@ -192,7 +192,6 @@ def parse():
     train_out = f'{",".join(args.train_tasks)}'
     if len(args.train_tasks) > 1:
         train_out += f'{"-".join([str(x) for x in args.train_iterations])}'
-    args.dist_sync_file = os.path.join(args.log_dir, 'distributed_sync_file')
 
     save_args(args)
 
