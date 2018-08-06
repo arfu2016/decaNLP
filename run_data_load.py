@@ -14,13 +14,13 @@ from pprint import pformat
 try:
     from data_squad import arguments
     from data_squad import torchtext
-    from util import get_splits
+    from data_squad.util import get_splits
 except ImportError:
     base_dir = os.path.dirname(__file__)
     sys.path.append(base_dir)
     from data_squad import arguments
     from data_squad import torchtext
-    from util import get_splits
+    from data_squad.util import get_splits
 
 
 def initialize_logger(args, rank='run_data_load'):

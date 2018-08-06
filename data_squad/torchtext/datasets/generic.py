@@ -204,6 +204,7 @@ class SQuAD(CQA, data.Dataset):
 
     def __init__(self, path, field, subsample=None, **kwargs):
         # path是放数据的文件名
+        # print(path)
         logger.debug(path)
         fields = [(x, field) for x in self.fields]
         cache_name = os.path.join(
