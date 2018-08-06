@@ -13,17 +13,17 @@ from pprint import pformat
 
 try:
     from data_squad import arguments
-    from text import torchtext
+    from data_squad import torchtext
     from util import get_splits
 except ImportError:
     base_dir = os.path.dirname(__file__)
     sys.path.append(base_dir)
     from data_squad import arguments
-    from text import torchtext
+    from data_squad import torchtext
     from util import get_splits
 
 
-def initialize_logger(args, rank='data_squad.data_load'):
+def initialize_logger(args, rank='run_data_load'):
     logger = logging.getLogger(f'process_{rank}')
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(name)s - %(lineno)d - %(message)s')
