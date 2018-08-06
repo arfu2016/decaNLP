@@ -339,7 +339,9 @@ class SQuAD(CQA, data.Dataset):
             torch.save((examples, all_answers), cache_name)
             # 把Example类的实例组成的列表保存到缓存中
 
+        logger.debug(len(examples))
         logger.debug(examples[0])
+        logger.debug(len(all_answers))
         logger.debug(all_answers[0:10])
 
         FIELD = data.Field(
