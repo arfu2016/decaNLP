@@ -215,8 +215,10 @@ class SQuAD(CQA, data.Dataset):
 
         examples, all_answers = [], []
         # logger.debug(os.path.exists(cache_name))
-        # if os.path.exists(cache_name):
-        if False:
+
+        # if False:
+        if os.path.exists(cache_name):
+
             examples, all_answers = torch.load(cache_name)
             # 缓存是用torch.save()存的，所以用torch.load()来加载
         else:
@@ -331,12 +333,13 @@ class SQuAD(CQA, data.Dataset):
                         break
 
             logger.debug(time.perf_counter()-start_time)
-            logger.debug(examples[0])
-            logger.debug(all_answers[0])
 
             os.makedirs(os.path.dirname(cache_name), exist_ok=True)
             torch.save((examples, all_answers), cache_name)
             # 把Example类的实例组成的列表保存到缓存中
+
+        logger.debug(examples[0])
+        logger.debug(all_answers[0:10])
 
         FIELD = data.Field(
             batch_first=True, use_vocab=False, sequential=False,
