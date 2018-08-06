@@ -331,8 +331,8 @@ class SQuAD(CQA, data.Dataset):
                         break
 
             logger.debug(time.perf_counter()-start_time)
-            logger.debug(examples)
-            logger.debug(all_answers)
+            logger.debug(examples[0])
+            logger.debug(all_answers[0])
 
             os.makedirs(os.path.dirname(cache_name), exist_ok=True)
             torch.save((examples, all_answers), cache_name)
