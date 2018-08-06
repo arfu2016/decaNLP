@@ -8,6 +8,9 @@ import torch.utils.data
 from .example import Example
 from ..utils import download_from_url
 
+from logger_setup import define_logger
+logger = define_logger('data_squad.torchtext.data.dataset')
+
 
 class Dataset(torch.utils.data.Dataset):
     """Defines a dataset composed of Examples along with its Fields.
@@ -122,6 +125,7 @@ class Dataset(torch.utils.data.Dataset):
                 if not os.path.isfile(zpath):
                     if not os.path.exists(os.path.dirname(zpath)):
                         os.makedirs(os.path.dirname(zpath))
+                    logger.debug(zpath)
                     print('downloading {}'.format(filename))
                     download_from_url(url, zpath)
                     # 下载文件的函数
