@@ -6,18 +6,18 @@
 @Desc      : 
 """
 
-import os
+# import os
 from copy import deepcopy
 from argparse import ArgumentParser
-import json
+# import json
 import datetime
 from dateutil import tz
 
 
-def save_args(args):
-    os.makedirs(args.log_dir, exist_ok=args.exist_ok)
-    with open(os.path.join(args.log_dir, 'config.json'), 'wt') as f:
-        json.dump(vars(args), f, indent=2)
+# def save_args(args):
+#     os.makedirs(args.log_dir, exist_ok=args.exist_ok)
+#     with open(os.path.join(args.log_dir, 'config.json'), 'wt') as f:
+#         json.dump(vars(args), f, indent=2)
 
 
 def parse():
@@ -193,6 +193,6 @@ def parse():
     if len(args.train_tasks) > 1:
         train_out += f'{"-".join([str(x) for x in args.train_iterations])}'
 
-    save_args(args)
+    # save_args(args)
 
     return args
