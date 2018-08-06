@@ -213,6 +213,7 @@ class SQuAD(CQA, data.Dataset):
         # 缓存文件的地址？
 
         examples, all_answers = [], []
+        logger.debug(os.path.exists(cache_name))
         if os.path.exists(cache_name):
             examples, all_answers = torch.load(cache_name)
             # 缓存是用torch.save()存的，所以用torch.load()来加载
