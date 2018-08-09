@@ -37,7 +37,7 @@ def initialize_logger(args, rank='main'):
     logger.setLevel(logging.DEBUG)
     handler = handlers.RotatingFileHandler(os.path.join(args.log_dir, f'process_{rank}.log'), maxBytes=1024*1024*10, backupCount=1)
     handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(name)s - %(message)s')
+    formatter = logging.Formatter('%(name)s - %(lineno)d - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     handler = logging.StreamHandler()

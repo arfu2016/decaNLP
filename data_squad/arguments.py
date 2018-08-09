@@ -144,6 +144,8 @@ def parse():
         '--gpus', default=[0], nargs='+', type=int,
         help='a list of gpus that can be used for training '
              '(multi-gpu currently WIP)')
+    # --gpus 0 1 2 3
+    # nargs='+'表示一个或者多个参数，对应着[0, 1, 2, 3]
     parser.add_argument(
         '--backend', default='gloo', type=str,
         help='backend for distributed training')
