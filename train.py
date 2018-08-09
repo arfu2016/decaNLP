@@ -380,4 +380,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+# python decaNLP/train.py --train_tasks squad --gpus 0 --train_batch_tokens 5000 --val_batch_size 128
