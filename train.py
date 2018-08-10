@@ -257,7 +257,9 @@ def train(args, model, opt, train_iters, train_iterations, field, rank=0, world_
                             metric_entry += f'{metric_key}_{metric_value:.2f}:'
                         metric_entry = f'{metric_entry[:-1]}'
                         logger.info(f'{args.timestamp}:{elapsed_time(logger)}:iteration_{iteration}:{round_progress}train_{task}:{task_progress}{avg_batch_size}loss_{local_loss:.4f}{metric_entry}') 
-                        num_examples = 0 
+                        # logging the loss value of training
+
+                        num_examples = 0
                         len_contexts = 0 
                         len_answers = 0  
     
