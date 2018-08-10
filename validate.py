@@ -2,7 +2,7 @@ import torch
 from util import pad
 from metrics import compute_metrics
 
-from .logger_setup import define_logger
+from logger_setup import define_logger
 logger = define_logger('validate')
 
 
