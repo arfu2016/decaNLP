@@ -2,6 +2,10 @@ import torch
 from util import pad
 from metrics import compute_metrics
 
+from .logger_setup import define_logger
+logger = define_logger('validate')
+
+
 def compute_validation_outputs(model, val_iter, field, optional_names=[]):
     loss, predictions, answers = [], [], []
     outputs = [[] for _ in range(len(optional_names))]
@@ -77,7 +81,8 @@ def validate(task, val_iter, model, logger, field, world_size, rank, num_print=1
     metrics, answers = compute_metrics(predictions, answers, bleu='iwslt' in task or 'multi30k' in task, dialogue='woz' in task,
         rouge='cnn' in task, logical_form='sql' in task, corpus_f1='zre' in task, args=args)
     results = [predictions, answers] + results
-    print('print from line 80 in validate.py')
+    # print('print from line 80 in validate.py')
+    logger.debug('Begin to validate and show examples')
     print_results(names, results, rank=rank, num_print=num_print)
 
     return loss, metrics

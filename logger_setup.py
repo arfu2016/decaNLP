@@ -18,3 +18,7 @@ def define_logger(rank='unknown'):
     logger.addHandler(handler)
     logger.propagate = False
     return logger
+
+
+def log(rank='main'):
+    return logging.getLogger(f'process_{rank}')
