@@ -2,6 +2,9 @@ import torch
 from util import pad
 from metrics import compute_metrics
 
+from utils import compute_bleu_rouge
+from utils import normalize
+
 from logger_setup import define_logger
 logger_temp = define_logger('validate')
 
@@ -61,12 +64,35 @@ def print_results(keys, values, rank=None, num_print=1):
     start = rank * num_print if rank is not None else 0
     end = start + num_print
     values = [val[start:end] for val in values]
+    ref_answers, pred_answers = [], []
     for ex_idx in range(len(values[0])):
         for key_idx, key in enumerate(keys):
             value = values[key_idx][ex_idx]
             v = value[0] if isinstance(value, list) else value
             print(f'{key}: {repr(v)}')
+            if key == 'greedy':
+                pred_answers.append({'answers': str(v)})
+            elif key == 'answer':
+                ref_answers.append({'answers': str(v)})
+
         print()
+
+    # compute the bleu and rouge scores if reference answers is provided
+    if len(ref_answers) > 0:
+        pred_dict, ref_dict = {}, {}
+        for pred, ref in zip(pred_answers, ref_answers):
+            question_id = ref['question_id']
+            if len(ref['answers']) > 0:
+                pred_dict[question_id] = normalize(pred['answers'])
+                # 利用utils包，normalize strings to space joined chars
+                ref_dict[question_id] = normalize(ref['answers'])
+        bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
+        # pred_dict是预测值，ref_dict是真实值
+        # 利用utils包，calculate bleu and rouge metrics
+    else:
+        bleu_rouge = None
+
+    return bleu_rouge
 
 
 def validate(task, val_iter, model, logger, field, world_size, rank, num_print=10, args=None):
@@ -83,6 +109,7 @@ def validate(task, val_iter, model, logger, field, world_size, rank, num_print=1
     results = [predictions, answers] + results
     # print('print from line 80 in validate.py')
     logger_temp.debug('Begin to validate and show examples')
-    print_results(names, results, rank=rank, num_print=num_print)
+    bleu_rouge = print_results(names, results, rank=rank, num_print=num_print)
+    logger.info('Result on dev set: {}'.format(bleu_rouge))
 
     return loss, metrics
