@@ -76,7 +76,7 @@ def cal_bleu_rouge(keys, values, rank=None, num_print=10000):
 
     start = rank * num_print if rank is not None else 0
     end = start + num_print
-    values = [val[start:end] for val in values]
+    # values = [val[start:end] for val in values]
     ref_answers, pred_answers = [], []
     for ex_idx in range(len(values[0])):
         for key_idx, key in enumerate(keys):
@@ -84,9 +84,9 @@ def cal_bleu_rouge(keys, values, rank=None, num_print=10000):
             v = value[0] if isinstance(value, list) else value
             # print(f'{key}: {repr(v)}')
             if key == 'greedy':
-                pred_answers.append({'answers': str(v)})
+                pred_answers.append({'answers': [str(v)]})
             elif key == 'answer':
-                ref_answers.append({'answers': str(v), 'question_id': ex_idx})
+                ref_answers.append({'answers': [str(v)], 'question_id': ex_idx})
 
     # compute the bleu and rouge scores if reference answers is provided
     if len(ref_answers) > 0:
