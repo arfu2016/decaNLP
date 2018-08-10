@@ -9,6 +9,7 @@ import logging
 
 
 def define_logger(rank='unknown'):
+    # print(rank)
     logger = logging.getLogger(f'process_{rank}')
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(name)s - %(lineno)d - %(message)s')

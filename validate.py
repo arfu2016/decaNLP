@@ -3,7 +3,7 @@ from util import pad
 from metrics import compute_metrics
 
 from logger_setup import define_logger
-logger = define_logger('validate')
+logger_temp = define_logger('validate')
 
 
 def compute_validation_outputs(model, val_iter, field, optional_names=[]):
@@ -82,7 +82,7 @@ def validate(task, val_iter, model, logger, field, world_size, rank, num_print=1
         rouge='cnn' in task, logical_form='sql' in task, corpus_f1='zre' in task, args=args)
     results = [predictions, answers] + results
     # print('print from line 80 in validate.py')
-    logger.debug('Begin to validate and show examples')
+    logger_temp.debug('Begin to validate and show examples')
     print_results(names, results, rank=rank, num_print=num_print)
 
     return loss, metrics
