@@ -91,5 +91,6 @@ if __name__ == '__main__':
     # python run_data_load.py --train_tasks squad
 
     # python decaNLP/train.py --train_tasks squad --gpus 0 --train_batch_tokens 5000 --val_batch_size 128
+    # python train.py --train_tasks squad --gpus 0 --train_batch_tokens 5000 --val_batch_size 128
 
     main()
