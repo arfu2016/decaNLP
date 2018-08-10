@@ -64,18 +64,29 @@ def print_results(keys, values, rank=None, num_print=1):
     start = rank * num_print if rank is not None else 0
     end = start + num_print
     values = [val[start:end] for val in values]
-    ref_answers, pred_answers = [], []
     for ex_idx in range(len(values[0])):
         for key_idx, key in enumerate(keys):
             value = values[key_idx][ex_idx]
             v = value[0] if isinstance(value, list) else value
             print(f'{key}: {repr(v)}')
+        print()
+
+
+def cal_bleu_rouge(keys, values, rank=None, num_print=10000):
+
+    start = rank * num_print if rank is not None else 0
+    end = start + num_print
+    values = [val[start:end] for val in values]
+    ref_answers, pred_answers = [], []
+    for ex_idx in range(len(values[0])):
+        for key_idx, key in enumerate(keys):
+            value = values[key_idx][ex_idx]
+            v = value[0] if isinstance(value, list) else value
+            # print(f'{key}: {repr(v)}')
             if key == 'greedy':
                 pred_answers.append({'answers': str(v)})
             elif key == 'answer':
-                ref_answers.append({'answers': str(v)})
-
-        print()
+                ref_answers.append({'answers': str(v), 'question_id': ex_idx})
 
     # compute the bleu and rouge scores if reference answers is provided
     if len(ref_answers) > 0:
@@ -109,7 +120,8 @@ def validate(task, val_iter, model, logger, field, world_size, rank, num_print=1
     results = [predictions, answers] + results
     # print('print from line 80 in validate.py')
     logger_temp.debug('Begin to validate and show examples')
-    bleu_rouge = print_results(names, results, rank=rank, num_print=num_print)
+    print_results(names, results, rank=rank, num_print=num_print)
+    bleu_rouge = cal_bleu_rouge(names, results, rank=rank)
     logger.info('Result on dev set: {}'.format(bleu_rouge))
 
     return loss, metrics
