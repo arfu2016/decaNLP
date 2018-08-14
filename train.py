@@ -121,15 +121,20 @@ def prepare_data(args, field, logger):
     return FIELD, train_sets, val_sets
 
 
-def to_iter(args, world_size, val_batch_size, data, train=True, token_testing=False, sort=None):
+def to_iter(args, world_size, val_batch_size, data, train=True,
+            token_testing=False, sort=None):
     sort = sort if not token_testing else True
     shuffle = None if not token_testing else False
     reverse = args.reverse
-    Iterator = torchtext.data.BucketIterator if train else torchtext.data.Iterator
-    it = Iterator(data, batch_size=val_batch_size, 
-       device=0 if world_size > 0 else -1, batch_size_fn=batch_fn if train else None, 
-       distributed=world_size>1, train=train, repeat=train, sort=sort, 
-       shuffle=shuffle, reverse=args.reverse)
+    Iterator = torchtext.data.BucketIterator if train \
+        else torchtext.data.Iterator
+    it = Iterator(
+        data, batch_size=val_batch_size,
+        # 在训练过程中用的batch_size也是val_batch_size
+        device=0 if world_size > 0 else -1,
+        batch_size_fn=batch_fn if train else None,
+        distributed=world_size > 1, train=train, repeat=train, sort=sort,
+        shuffle=shuffle, reverse=args.reverse)
     return it
 
 
@@ -151,32 +156,37 @@ def step(model, batch, opt, iteration, field, task, lr=None, grad_clip=None, wri
     return loss.data[0], {}
 
 
-def train(args, model, opt, train_iters, train_iterations, field, rank=0, world_size=1, 
-    log_every=10, val_every=100, save_every=1000, rounds=False, val_iters=[], writer=None, start_iteration=1, rnd=1):
+def train(args, model, opt, train_iters, train_iterations, field, rank=0,
+          world_size=1, log_every=10, val_every=100, save_every=1000,
+          rounds=False, val_iters=[], writer=None, start_iteration=1, rnd=1):
     """main training function"""
 
     logger = log(rank) 
-    local_loss, num_examples, len_contexts, len_answers, iteration = 0, 0, 0, 0, start_iteration
+    local_loss, num_examples, len_contexts, len_answers, iteration = \
+        0, 0, 0, 0, start_iteration
 
     train_iter_deep = deepcopy(train_iterations)
     local_train_metric_dict = {}
 
-    train_iters = [(task, iter(train_iter)) for task, train_iter in train_iters]
+    train_iters = [
+        (task, iter(train_iter)) for task, train_iter in train_iters]
     while True:
 
         # For some number of rounds, we 'jump start' some subset of the tasks
         # by training them and not others
         # once the specified number of rounds is completed, 
         # switch to normal round robin training
-        if rnd<args.jump_start:
+        if rnd < args.jump_start:
             train_iterations = [0]*len(train_iterations)
-            for _ in range(args.n_jump_start): train_iterations[_] = 1
+            for _ in range(args.n_jump_start):
+                train_iterations[_] = 1
         else:
             train_iterations = train_iter_deep
 
         for task_idx, (task, train_iter) in enumerate(train_iters):
             task_best_metrics = {}
-            task_iterations = train_iterations[task_idx] if train_iterations is not None else None
+            task_iterations = train_iterations[
+                task_idx] if train_iterations is not None else None
             if task_iterations == 0:
                 continue
             task_iteration = 1
@@ -297,10 +307,19 @@ def run(args, run_args, rank=0, world_size=1):
     logger.start = time.time()
 
     logger.info(f'Preparing iterators')
-    train_iters = [(name, to_iter(args, world_size, tok, x, token_testing=args.token_testing)) 
-                      for name, x, tok in zip(args.train_tasks, train_sets, args.train_batch_tokens)]
-    val_iters = [(name, to_iter(args, world_size, tok, x, train=False, token_testing=args.token_testing, sort=False if 'sql' in name else None))
-                    for name, x, tok in zip(args.val_tasks, val_sets, args.val_batch_size)]
+    train_iters = [(
+        name, to_iter(
+            args, world_size, tok, x, token_testing=args.token_testing))
+                for name, x, tok in zip(
+            args.train_tasks, train_sets, args.train_batch_tokens)]
+    # 从to_iter()函数生成train_iters，然后train_iters传给train()函数
+    val_iters = [(
+        name, to_iter(
+            args, world_size, tok, x, train=False,
+            token_testing=args.token_testing, sort=False if 'sql' in name
+            else None))
+            for name, x, tok in zip(
+            args.val_tasks, val_sets, args.val_batch_size)]
 
     logger.info(f'Initializing Writer')
     writer = SummaryWriter(log_dir=args.log_dir)
@@ -314,27 +333,40 @@ def run(args, run_args, rank=0, world_size=1):
         save_dict = torch.load(os.path.join(args.save, args.load))
         model.load_state_dict(save_dict['model_state_dict'])
         if args.resume:
-            logger.info(f'Resuming Training from {os.path.splitext(args.load)[0]}_rank_{rank}_optim.pth')
-            opt.load_state_dict(torch.load(os.path.join(args.save, f'{os.path.splitext(args.load)[0]}_rank_{rank}_optim.pth')))
-            start_iteration = int(os.path.splitext(os.path.basename(args.load))[0].split('_')[1])
+            logger.info(
+                f'Resuming Training from {os.path.splitext(args.load)[0]}'
+                f'_rank_{rank}_optim.pth')
+            opt.load_state_dict(
+                torch.load(os.path.join(
+                    args.save, f'{os.path.splitext(args.load)[0]}_rank_{rank}_'
+                               f'optim.pth')))
+            start_iteration = int(
+                os.path.splitext(os.path.basename(args.load))[0].split('_')[1])
 
     logger.info(f'Begin Training')
-    train(args, model, opt, train_iters, args.train_iterations, field, val_iters=val_iters, 
+    train(
+        args, model, opt, train_iters, args.train_iterations, field,
+        val_iters=val_iters,
         rank=rank, world_size=world_size, 
-        log_every=args.log_every, val_every=args.val_every, rounds=len(train_iters)>1,
-        writer=writer if rank==0 else None, save_every=args.save_every, start_iteration=start_iteration)
+        log_every=args.log_every, val_every=args.val_every,
+        rounds=len(train_iters) > 1,
+        writer=writer if rank == 0 else None, save_every=args.save_every,
+        start_iteration=start_iteration)
 
 
 def init_model(args, field, logger, world_size):
     logger.info(f'Initializing {args.model}')
     Model = getattr(models, args.model) 
     model = Model(field, args)
+    # 模型初始化
     params = get_trainable_params(model) 
     num_param = count_params(params)
+    # 计算模型参数个数
     logger.info(f'{args.model} has {num_param:,} parameters')
 
     if args.gpus[0] > -1:
         model.cuda()
+        # 是否使用gpu设置的地方，如果设置为-1或者更负，就不使用gpu，只用cpu
     if world_size > 1: 
         logger.info(f'Wrapping model for distributed')
         model = DistributedDataParallel(model)
